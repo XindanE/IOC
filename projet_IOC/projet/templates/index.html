@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Sensor Data</h1>
+    <p>Current value: <span id="current_value">{{ value }}</span></p>
+    <canvas id="myChart" width="400" height="200"></canvas>
+
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Sensor Value',
+                    data: [],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    
+                    y: {
+                        min: 0,
+                        max: 4000
+                    }
+                }
+            }
+        });
+
+        function addData(chart, label, data) {
+            chart.data.labels.push(label);
+            chart.data.datasets.forEach((dataset) => {
+                dataset.data.push(data);
+            });
+            chart.update();
+        }
+
+        function updateData() {
+            fetch("/data")
+                .then((response) => response.text())
+                .then((value) => {
+                    document.getElementById("current_value").textContent = value;
+                    addData(myChart, new Date(), parseFloat(value));
+                });
+        }
+
+        setInterval(updateData, 2000); // Update data every 2 seconds
+    </script>
+</body>
+</html>
